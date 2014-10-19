@@ -4,15 +4,24 @@ var appPath = process.cwd();
 var util = require(appPath+'/lib/util');
 
 
-module.exports = function(app, db) {
+module.exports = function(app, io, db) {
 
     //Express settings
     require(appPath + '/config/express')(app, db);
 
     function bootstrapPackages() {
         // Bootstrap models
-        util.walk(appPath + '/packages', '*', ['public', 'controllers', 'models', 'tests'], function(path) {
-            require(path)(app, db);
+
+        var excludeDir = [
+        	'public', 
+        	'controllers', 
+        	'models', 
+        	'tests', 
+        	'views'
+        ];
+
+        util.walk(appPath + '/packages', '*', excludeDir, function(path) {
+            require(path)(app, io, db);
         });
     }
 

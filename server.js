@@ -5,9 +5,8 @@
  */
 var mongoose = require('mongoose'),
     app = require('express')(),
-    socketIo = require('socket.io'),
-    server = require('http').createServer(app),
-	io = socketIo.listen(server);
+    server = require('http').Server(app),
+	io = require('socket.io').listen(server);
 
 /**
  * Main application entry file.
@@ -20,15 +19,17 @@ var db = mongoose.connect(config.db);
 var conn = mongoose.connection;
 conn.on('error', console.log.bind(console, '**Could not connect to MongoDB. Please ensure mongod is running and restart MEAN app.**\n'));
 
-
-
 // Bootstrap Models, Dependencies, Routes and the app as an express app
-require('./bootstrap/system')(app, db);
+require('./bootstrap/system')(app, io, db);
 
 // Start the app by listening on <port>, optional hostname
 conn.once('open', function() {
     server.listen(config.port, config.hostname);    
     console.log('MEAN app started on port ' + config.port + ' (' + process.env.NODE_ENV + ')');
+});
+
+io.on('connection',function(){
+	console.log('novo usuario conectado');
 });
 
 // Expose app
